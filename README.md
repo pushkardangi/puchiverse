@@ -20,6 +20,20 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Home screen
+
+The App Router entry point is `app/page.tsx`. The screen is composed in
+`components/home/HomePage.tsx`, with reusable layout, home, and common components
+under `components/`. Sample content and the demo date are in `data/demoData.ts`;
+the live day calculation is in `hooks/useCountdown.ts`.
+
+The home and Puchis pages share an in-memory demo counter and session history,
+which reset on reload. The initial total is sample data and has no historical
+entries; the seven-day graph counts only puchis added during the current session,
+grouped by the device's local date. No backend is connected, so puchis and prepared hugs are not delivered.
+Memories and Us navigation still changes the selection only. Replace the demo
+date and remote sample images when real content is available.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

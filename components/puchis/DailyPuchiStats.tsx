@@ -80,7 +80,7 @@ export default function DailyPuchiStats({ history }: DailyPuchiStatsProps) {
                     />
                   </div>
                   <span className="mt-2 text-[10px] text-[#766d69] sm:text-xs">
-                    {date.toLocaleDateString(undefined, { weekday: "short" })}
+                    {date.toLocaleDateString("en-US", { weekday: "short" })}
                   </span>
                   <span className="text-[10px] text-[#766d69] sm:text-xs">{date.getDate()}</span>
                 </div>
@@ -93,7 +93,7 @@ export default function DailyPuchiStats({ history }: DailyPuchiStatsProps) {
                 <tbody>
                   {days.map(({ date, count }) => (
                     <tr key={localDayKey(date)}>
-                      <th scope="row">{date.toLocaleDateString(undefined, { dateStyle: "full" })}</th>
+                      <th scope="row">{date.toLocaleDateString("en-US", { dateStyle: "full" })}</th>
                       <td>{count}</td>
                     </tr>
                   ))}

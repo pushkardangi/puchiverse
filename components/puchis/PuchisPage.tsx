@@ -48,7 +48,7 @@ export default function PuchisPage() {
                     <div className="min-w-0">
                       <p className="text-sm font-semibold">A puchi added</p>
                       <time dateTime={new Date(time).toISOString()} className="mt-1 block text-xs text-[#766d69]">
-                        {new Date(time).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                        {new Date(time).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
                       </time>
                     </div>
                   </li>

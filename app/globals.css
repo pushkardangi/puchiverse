@@ -50,7 +50,20 @@ button:not(:disabled) {
   @apply flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#EAD9D8] px-4 py-3 text-sm font-medium text-[#965461] transition-colors hover:bg-[#FCF5F4] active:bg-[#F4E5E5] disabled:cursor-not-allowed disabled:opacity-60;
 }
 
+@keyframes us-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.025); box-shadow: 0 0 0 6px rgba(182, 109, 121, 0.14); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(182, 109, 121, 0); }
+}
+
+.animate-us-pop {
+  animation: us-pop 0.9s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .animate-us-pop {
+    animation: none;
+  }
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

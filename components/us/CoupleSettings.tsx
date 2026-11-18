@@ -2,6 +2,7 @@
 
 import { Bell, ChevronRight, Info, LogOut, Palette, ShieldCheck, UserPen, type LucideIcon } from "lucide-react";
 import { useState } from "react";
+import { SignOutButton } from "@clerk/nextjs";
 import ModalShell from "@/components/memories/ModalShell";
 import ToggleRow from "@/components/us/ToggleRow";
 import { dangerButtonClass, eyebrowClass } from "@/components/us/formStyles";
@@ -21,7 +22,7 @@ const rows: { id: SheetKind | "profile"; label: string; hint: string; icon: Luci
   { id: "privacy", label: "Privacy settings", hint: "Keep your world just for two", icon: ShieldCheck },
   { id: "theme", label: "Theme preferences", hint: "Ivory", icon: Palette },
   { id: "about", label: "About Puchiverse", hint: "Version and credits", icon: Info },
-  { id: "signout", label: "Sign out", hint: "Account and demo data", icon: LogOut },
+  { id: "signout", label: "Sign out", hint: "Sign out or reset demo data", icon: LogOut },
 ];
 
 const sheetTitles: Record<SheetKind, string> = {
@@ -105,12 +106,13 @@ export default function CoupleSettings({ settings, onChange, onEditProfile }: Co
             )}
             {sheet === "signout" && (
               <div className="mt-6 space-y-4 text-sm leading-6 text-[#665753]">
-                <p>Accounts aren&apos;t connected yet, so there&apos;s nothing to sign out of. Everything you add is stored in this browser only.</p>
+                <p>Sign out of your Clerk account, or reset the demo data stored in this browser.</p>
+                <SignOutButton>
+                  <button type="button" className={`${dangerButtonClass} w-full`}>Sign out</button>
+                </SignOutButton>
                 <button type="button" onClick={resetDemoData} className={`${dangerButtonClass} w-full`}>Reset Us demo data</button>
               </div>
             )}
-
-            <button type="button" onClick={() => setSheet(undefined)} className="button-secondary mt-7">Done</button>
           </div>
         </ModalShell>
       )}

@@ -14,23 +14,31 @@ import { isTemporaryImage } from "@/lib/imageStorage";
 type MilestoneFormProps = {
   milestone?: Milestone;
   onClose: () => void;
-  onSave: (input: MilestoneInput) => void;
+  onSave: (input: MilestoneInput) => Promise<boolean>;
+  saveError?: string;
 };
 
-export default function MilestoneForm({ milestone, onClose, onSave }: MilestoneFormProps) {
+export default function MilestoneForm({ milestone, onClose, onSave, saveError }: MilestoneFormProps) {
   const [title, setTitle] = useState(milestone?.title ?? "");
   const [description, setDescription] = useState(milestone?.description ?? "");
   const [date, setDate] = useState(milestone?.date ?? localToday());
   const [category, setCategory] = useState<Milestone["category"]>(milestone?.category ?? "Custom");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const picker = useImagePicker(milestone?.image ?? null);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!title.trim()) return setError("Give this milestone a title.");
     if (!isValidDate(date)) return setError("Choose a valid date.");
-    picker.commit();
-    onSave({ title: title.trim(), description: description.trim(), date, category, image: picker.image });
+    setError("");
+    setSaving(true);
+    const saved = await onSave({ title: title.trim(), description: description.trim(), date, category, image: picker.image });
+    if (saved) {
+      picker.commit();
+      onClose();
+    }
+    setSaving(false);
   };
 
   return (
@@ -88,10 +96,10 @@ export default function MilestoneForm({ milestone, onClose, onSave }: MilestoneF
           </div>
         </div>
 
-        {error && <p role="alert" className="mt-5 rounded-xl bg-[#FFF0EF] px-4 py-3 text-xs text-[#9A4652]">{error}</p>}
+        {(error || saveError) && <p role="alert" className="mt-5 rounded-xl bg-[#FFF0EF] px-4 py-3 text-xs text-[#9A4652]">{error || saveError}</p>}
         <div className="mt-7 flex gap-3">
           <button type="button" onClick={onClose} className="button-secondary">Cancel</button>
-          <button type="submit" className="button-primary">{milestone ? "Save changes" : "Save milestone"}</button>
+          <button type="submit" disabled={saving} className="button-primary">{saving ? "Saving..." : milestone ? "Save changes" : "Save milestone"}</button>
         </div>
       </form>
     </ModalShell>

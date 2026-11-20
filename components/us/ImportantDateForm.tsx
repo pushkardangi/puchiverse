@@ -11,22 +11,28 @@ import { isValidDate } from "@/lib/dates";
 type ImportantDateFormProps = {
   item?: ImportantDate;
   onClose: () => void;
-  onSave: (input: ImportantDateInput) => void;
+  onSave: (input: ImportantDateInput) => Promise<boolean>;
+  saveError?: string;
 };
 
-export default function ImportantDateForm({ item, onClose, onSave }: ImportantDateFormProps) {
+export default function ImportantDateForm({ item, onClose, onSave, saveError }: ImportantDateFormProps) {
   const [title, setTitle] = useState(item?.title ?? "");
   const [date, setDate] = useState(item?.date ?? "");
   const [category, setCategory] = useState<DateCategory>(item?.category ?? "Special Occasion");
   const [isRecurring, setIsRecurring] = useState(item?.isRecurring ?? true);
   const [reminderEnabled, setReminderEnabled] = useState(item?.reminderEnabled ?? false);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!title.trim()) return setError("Give this date a name.");
     if (!isValidDate(date)) return setError("Choose a valid date.");
-    onSave({ title: title.trim(), date, category, isRecurring, reminderEnabled });
+    setError("");
+    setSaving(true);
+    const saved = await onSave({ title: title.trim(), date, category, isRecurring, reminderEnabled });
+    setSaving(false);
+    if (saved) onClose();
   };
 
   return (
@@ -52,10 +58,10 @@ export default function ImportantDateForm({ item, onClose, onSave }: ImportantDa
           <ToggleRow className="sm:col-span-2" label="Repeats every year" hint="Birthdays and anniversaries roll to the next occurrence." checked={isRecurring} onChange={setIsRecurring} />
           <ToggleRow className="sm:col-span-2" label="Remind me" hint="Saved now; delivered once notifications are connected." checked={reminderEnabled} onChange={setReminderEnabled} />
         </div>
-        {error && <p role="alert" className="mt-5 rounded-xl bg-[#FFF0EF] px-4 py-3 text-xs text-[#9A4652]">{error}</p>}
+        {(error || saveError) && <p role="alert" className="mt-5 rounded-xl bg-[#FFF0EF] px-4 py-3 text-xs text-[#9A4652]">{error || saveError}</p>}
         <div className="mt-7 flex gap-3">
           <button type="button" onClick={onClose} className="button-secondary">Cancel</button>
-          <button type="submit" className="button-primary">{item ? "Save changes" : "Save date"}</button>
+          <button type="submit" disabled={saving} className="button-primary">{saving ? "Saving..." : item ? "Save changes" : "Save date"}</button>
         </div>
       </form>
     </ModalShell>

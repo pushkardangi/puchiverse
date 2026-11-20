@@ -12,19 +12,20 @@ type ImportantDatesSectionProps = {
   dates: ImportantDateView[];
   rawDates: ImportantDate[];
   loading: boolean;
-  onAdd: (input: ImportantDateInput) => void;
-  onUpdate: (id: string, input: ImportantDateInput) => void;
+  available: boolean;
+  onAdd: (input: ImportantDateInput) => Promise<boolean>;
+  onUpdate: (id: string, input: ImportantDateInput) => Promise<boolean>;
   onDelete: (id: string) => void;
   onToggleReminder: (id: string) => void;
+  error?: string;
 };
 
-export default function ImportantDatesSection({ dates, rawDates, loading, onAdd, onUpdate, onDelete, onToggleReminder }: ImportantDatesSectionProps) {
+export default function ImportantDatesSection({ dates, rawDates, loading, available, onAdd, onUpdate, onDelete, onToggleReminder, error }: ImportantDatesSectionProps) {
   const [formTarget, setFormTarget] = useState<ImportantDate | "new">();
 
-  const save = (input: ImportantDateInput) => {
-    if (formTarget && formTarget !== "new") onUpdate(formTarget.id, input);
-    else onAdd(input);
-    setFormTarget(undefined);
+  const save = async (input: ImportantDateInput) => {
+    const saved = formTarget && formTarget !== "new" ? await onUpdate(formTarget.id, input) : await onAdd(input);
+    return saved;
   };
 
   const remove = (item: ImportantDate) => {
@@ -38,7 +39,7 @@ export default function ImportantDatesSection({ dates, rawDates, loading, onAdd,
           <p className={eyebrowClass}>Days that matter</p>
           <h2 id="dates-title" className="mt-2 font-serif text-3xl text-[#342B2C]">Important Dates</h2>
         </div>
-        <button type="button" onClick={() => setFormTarget("new")} className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#B66D79] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#A35C69]">
+        <button type="button" disabled={!available} onClick={() => setFormTarget("new")} className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#B66D79] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#A35C69] disabled:opacity-50">
           <Plus aria-hidden="true" size={16} /> Add
         </button>
       </div>
@@ -47,7 +48,7 @@ export default function ImportantDatesSection({ dates, rawDates, loading, onAdd,
         <div aria-hidden="true" className="mt-6 space-y-3">
           {[0, 1, 2].map((key) => <div key={key} className="h-[90px] animate-pulse rounded-2xl bg-[#F3ECE8]" />)}
         </div>
-      ) : dates.length === 0 ? (
+      ) : !available ? null : dates.length === 0 ? (
         <div className="card-surface mt-6 text-center">
           <CalendarHeart aria-hidden="true" size={26} strokeWidth={1.5} className="mx-auto text-[#B66D79]" />
           <p className="mt-3 font-serif text-xl text-[#3E3131]">No dates yet</p>
@@ -67,7 +68,7 @@ export default function ImportantDatesSection({ dates, rawDates, loading, onAdd,
         </ul>
       )}
 
-      {formTarget && <ImportantDateForm item={formTarget === "new" ? undefined : formTarget} onClose={() => setFormTarget(undefined)} onSave={save} />}
+      {formTarget && <ImportantDateForm item={formTarget === "new" ? undefined : formTarget} onClose={() => setFormTarget(undefined)} onSave={save} saveError={error} />}
     </section>
   );
 }

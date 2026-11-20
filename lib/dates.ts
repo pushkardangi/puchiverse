@@ -102,6 +102,9 @@ export function nextOccurrence(value: string, today: string, recurring: boolean)
   if (!recurring) {
     return { date: value, daysRemaining: diffInDays(now, origin), years: 0 };
   }
+  if (diffInDays(now, origin) > 0) {
+    return { date: value, daysRemaining: diffInDays(now, origin), years: 0 };
+  }
 
   const occurrenceIn = (year: number): DateParts => ({
     year,

@@ -12,30 +12,34 @@ import type { MilestoneInput } from "@/hooks/useMilestones";
 
 type MilestonesSectionProps = {
   milestones: Milestone[];
-  onAdd: (input: MilestoneInput) => Milestone;
-  onUpdate: (id: string, input: MilestoneInput) => void;
-  onDelete: (milestone: Milestone) => void;
+  onAdd: (input: MilestoneInput) => Promise<Milestone | null>;
+  onUpdate: (id: string, input: MilestoneInput) => Promise<boolean>;
+  onDelete: (milestone: Milestone) => Promise<boolean>;
+  loading: boolean;
+  available: boolean;
+  error?: string;
 };
 
-export default function MilestonesSection({ milestones, onAdd, onUpdate, onDelete }: MilestonesSectionProps) {
+export default function MilestonesSection({ milestones, onAdd, onUpdate, onDelete, loading, available, error }: MilestonesSectionProps) {
   const [detailId, setDetailId] = useState<string>();
   const [formTarget, setFormTarget] = useState<Milestone | "new">();
   const [celebratingId, celebrate] = useCelebration();
   const detail = milestones.find((milestone) => milestone.id === detailId);
 
-  const save = (input: MilestoneInput) => {
+  const save = async (input: MilestoneInput) => {
     if (formTarget && formTarget !== "new") {
-      onUpdate(formTarget.id, input);
+      if (!await onUpdate(formTarget.id, input)) return false;
     } else {
-      celebrate(onAdd(input).id);
+      const created = await onAdd(input);
+      if (!created) return false;
+      celebrate(created.id);
     }
-    setFormTarget(undefined);
+    return true;
   };
 
-  const remove = (milestone: Milestone) => {
+  const remove = async (milestone: Milestone) => {
     if (!window.confirm(`Delete "${milestone.title}" from your milestones? This cannot be undone.`)) return;
-    onDelete(milestone);
-    setDetailId(undefined);
+    if (await onDelete(milestone)) setDetailId(undefined);
   };
 
   return (
@@ -45,12 +49,12 @@ export default function MilestonesSection({ milestones, onAdd, onUpdate, onDelet
           <p className={eyebrowClass}>The journey so far</p>
           <h2 id="milestones-title" className="mt-2 font-serif text-3xl text-[#342B2C]">Our Milestones</h2>
         </div>
-        <button type="button" onClick={() => setFormTarget("new")} className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#B66D79] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#A35C69]">
+        <button type="button" disabled={!available} onClick={() => setFormTarget("new")} className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#B66D79] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#A35C69] disabled:opacity-50">
           <Plus aria-hidden="true" size={16} /> Add
         </button>
       </div>
 
-      {milestones.length === 0 ? (
+      {loading ? <p className="mt-6 text-sm text-[#766D69]">Loading milestones...</p> : !available ? null : milestones.length === 0 ? (
         <div className="card-surface mt-6 text-center">
           <Route aria-hidden="true" size={26} strokeWidth={1.5} className="mx-auto text-[#B66D79]" />
           <p className="mt-3 font-serif text-xl text-[#3E3131]">Your story starts here</p>
@@ -74,10 +78,11 @@ export default function MilestonesSection({ milestones, onAdd, onUpdate, onDelet
           onClose={() => setDetailId(undefined)}
           onEdit={(milestone) => { setDetailId(undefined); setFormTarget(milestone); }}
           onDelete={remove}
+          error={error}
         />
       )}
       {formTarget && (
-        <MilestoneForm milestone={formTarget === "new" ? undefined : formTarget} onClose={() => setFormTarget(undefined)} onSave={save} />
+        <MilestoneForm milestone={formTarget === "new" ? undefined : formTarget} onClose={() => setFormTarget(undefined)} onSave={save} saveError={error} />
       )}
     </section>
   );

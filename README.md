@@ -67,16 +67,31 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 The App Router entry point is `app/page.tsx`. The screen is composed in
 `components/home/HomePage.tsx`, with reusable layout, home, and common components
-under `components/`. Sample content and the demo date are in `data/demoData.ts`;
-the live day calculation is in `hooks/useCountdown.ts`.
+under `components/`. Some sample content remains in `data/demoData.ts`.
 
 The Home and Puchis pages use the MongoDB-backed puchi transaction history for
 the shared count and sent/received statistics. Sending requires an authenticated
 user with an active relationship, and request idempotency is enforced by a
 couple- and sender-scoped unique index. `GET /api/puchis/history?page=1&limit=20`
-returns a newest-first page of minimal sender details. Memories and Us content
-still includes demo data; replace the demo date and remote sample images when
-real content is available.
+returns a newest-first page of minimal sender details. Memories and other Us content
+still include demo data.
+
+## Shared events
+
+Milestones, important dates, and scheduled events use one MongoDB collection,
+scoped to the active relationship and distinguished by tag. Both partners can
+add, edit, and delete milestones and important dates. The Something special card
+shows the nearest upcoming important date or scheduled event, including today;
+annual dates recur from their original date, with February 29 observed on
+February 28 in non-leap years. Past one-off events and milestones are excluded.
+Events added on the card are schedules, not milestones or important dates.
+The card can edit or delete the currently displayed schedule.
+
+Shared events start empty; earlier browser-only milestone and date data is left
+untouched and is not imported. Milestone photographs remain temporary browser
+previews and are not saved or shared. Reminder settings are saved but do not
+send notifications yet. Run `node --experimental-strip-types --no-warnings --test tests/events.test.mjs`
+to check event validation and countdown behavior.
 
 ## Learn More
 

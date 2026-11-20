@@ -13,9 +13,10 @@ type MilestoneDetailProps = {
   onClose: () => void;
   onEdit: (milestone: Milestone) => void;
   onDelete: (milestone: Milestone) => void;
+  error?: string;
 };
 
-export default function MilestoneDetail({ milestone, onClose, onEdit, onDelete }: MilestoneDetailProps) {
+export default function MilestoneDetail({ milestone, onClose, onEdit, onDelete, error }: MilestoneDetailProps) {
   const [failed, setFailed] = useState(false);
 
   return (
@@ -32,6 +33,7 @@ export default function MilestoneDetail({ milestone, onClose, onEdit, onDelete }
           <CalendarDays aria-hidden="true" size={15} /> <time dateTime={milestone.date}>{formatDate(milestone.date)}</time>
         </p>
         <p className="mt-6 whitespace-pre-wrap font-serif text-lg leading-8 text-[#5F514E]">{milestone.description || "A moment worth remembering."}</p>
+        {error && <p role="alert" className="mt-4 text-xs text-[#9A4652]">{error}</p>}
         <div className="mt-8 grid gap-3 sm:grid-cols-2">
           <button type="button" onClick={() => onEdit(milestone)} className="button-secondary"><Pencil aria-hidden="true" size={15} /> Edit</button>
           <button type="button" onClick={() => onDelete(milestone)} className={dangerButtonClass}><Trash2 aria-hidden="true" size={15} /> Delete</button>

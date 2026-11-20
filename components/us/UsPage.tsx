@@ -15,27 +15,40 @@ import { usePuchis } from "@/components/puchis/PuchiProvider";
 import { loveNotes } from "@/data/demoData";
 import { useBucketList } from "@/hooks/useBucketList";
 import { useCoupleProfile } from "@/hooks/useCoupleProfile";
-import { useImportantDates } from "@/hooks/useImportantDates";
+import { useEvents } from "@/hooks/useEvents";
 import { useMemories } from "@/hooks/useMemories";
-import { useMilestones } from "@/hooks/useMilestones";
 import { useRelationshipDuration } from "@/hooks/useRelationshipDuration";
+import { useToday } from "@/hooks/useToday";
+import { nextOccurrence } from "@/lib/dates";
 
 export default function UsPage() {
   const [editingProfile, setEditingProfile] = useState(false);
   const { profile, updateProfile, preferences, updatePreferences, settings, updateSettings, error: profileError } = useCoupleProfile();
   const duration = useRelationshipDuration(profile.relationshipStartDate);
-  const milestones = useMilestones();
+  const events = useEvents();
+  const today = useToday();
   const bucketList = useBucketList();
-  const importantDates = useImportantDates();
   const { memories } = useMemories();
   const { summary: puchiSummary } = usePuchis();
 
-  const storageError = profileError || milestones.error || bucketList.error || importantDates.error;
+  const storageError = profileError || events.error || bucketList.error;
+  const milestones = events.events.filter((item) => item.tag === "milestone")
+    .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
+  const rawDates = events.events.filter((item) => item.tag === "important-date");
+  const dates = today ? rawDates.flatMap((item) => {
+    const occurrence = nextOccurrence(item.date, today, item.isRecurring);
+    return occurrence ? [{ ...item, nextDate: occurrence.date, daysRemaining: occurrence.daysRemaining, years: occurrence.years }] : [];
+  }).sort((a, b) => {
+    const aPast = a.daysRemaining < 0;
+    const bPast = b.daysRemaining < 0;
+    if (aPast !== bPast) return aPast ? 1 : -1;
+    return aPast ? b.daysRemaining - a.daysRemaining : a.daysRemaining - b.daysRemaining;
+  }) : [];
 
   const stats: RelationshipStat[] = [
     { label: "Days together", value: duration.status === "ready" ? duration.totalDays : null, source: "records" },
     { label: "Memories saved", value: memories.length, source: "records" },
-    { label: "Milestones celebrated", value: milestones.milestones.length, source: "records" },
+    { label: "Milestones celebrated", value: events.ready ? milestones.length : null, source: "shared" },
     { label: "Dreams completed", value: bucketList.completed.length, source: "records" },
     { label: "Puchis exchanged", value: puchiSummary?.totalPuchis ?? null, source: "shared" },
     { label: "Love notes", value: loveNotes.length, source: "demo" },
@@ -49,6 +62,7 @@ export default function UsPage() {
             <AlertCircle aria-hidden="true" size={16} className="mt-0.5 shrink-0" /> {storageError}
           </p>
         )}
+        {events.error && !events.ready && <button type="button" onClick={events.retry} className="button-secondary">Retry loading events</button>}
 
         <div className="space-y-6">
           <RelationshipHero profile={profile} duration={duration} onEdit={() => setEditingProfile(true)} />
@@ -56,10 +70,16 @@ export default function UsPage() {
         </div>
 
         <MilestonesSection
-          milestones={milestones.milestones}
-          onAdd={milestones.addMilestone}
-          onUpdate={milestones.updateMilestone}
-          onDelete={milestones.deleteMilestone}
+          milestones={milestones}
+          loading={events.loading}
+          available={events.ready}
+          error={events.error}
+          onAdd={async (input) => {
+            const result = await events.save({ ...input, tag: "milestone" });
+            return result?.tag === "milestone" ? result : null;
+          }}
+          onUpdate={async (id, input) => !!await events.save({ ...input, tag: "milestone" }, id)}
+          onDelete={(item) => events.remove(item.id)}
         />
 
         <div className="grid items-start gap-12 md:grid-cols-2 md:gap-8">
@@ -73,13 +93,18 @@ export default function UsPage() {
             onDelete={bucketList.deleteItem}
           />
           <ImportantDatesSection
-            dates={importantDates.dates}
-            rawDates={importantDates.rawDates}
-            loading={importantDates.loading}
-            onAdd={importantDates.addDate}
-            onUpdate={importantDates.updateDate}
-            onDelete={importantDates.deleteDate}
-            onToggleReminder={importantDates.toggleReminder}
+            dates={dates}
+            rawDates={rawDates}
+            loading={events.loading || !today}
+            available={events.ready}
+            error={events.error}
+            onAdd={async (input) => !!await events.save({ ...input, tag: "important-date" })}
+            onUpdate={async (id, input) => !!await events.save({ ...input, tag: "important-date" }, id)}
+            onDelete={(id) => { void events.remove(id); }}
+            onToggleReminder={(id) => {
+              const item = rawDates.find((date) => date.id === id);
+              if (item) void events.save({ ...item, reminderEnabled: !item.reminderEnabled }, id);
+            }}
           />
         </div>
 

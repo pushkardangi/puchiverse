@@ -76,6 +76,13 @@ couple- and sender-scoped unique index. `GET /api/puchis/history?page=1&limit=20
 returns a newest-first page of minimal sender details. Memories and other Us content
 still include demo data.
 
+The Home page's Love Jar stores notes in MongoDB for the active relationship.
+Either partner can use the plus button on the card to add a note for the other;
+only the recipient can retrieve and open it. Each partner's count shows notes
+received, not notes they wrote.
+Run `node --experimental-strip-types --no-warnings --test lib/__tests__/love-jar.test.mjs`
+to check recipient and relationship isolation using mocked database models.
+
 ## Shared events
 
 Milestones, important dates, and scheduled events use one MongoDB collection,

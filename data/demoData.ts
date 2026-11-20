@@ -7,14 +7,6 @@ export type Memory = {
 export const initialPuchiCount = 128;
 export const specialDate = "2026-12-01T00:00:00";
 
-export const loveNotes = [
-  "You make even my ordinary days special. ❤️",
-  "If I could choose again, I'd still choose you.",
-  "Sending you one invisible hug and a thousand kisses.",
-  "You are my favourite notification.",
-  "Just a reminder: someone is smiling because of you.",
-];
-
 export const memories: Memory[] = [
   {
     title: "Our favourite moment",

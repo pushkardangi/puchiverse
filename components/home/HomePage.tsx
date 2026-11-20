@@ -8,7 +8,7 @@ import CountdownCard from "@/components/home/CountdownCard";
 import LoveJarCard from "@/components/home/LoveJarCard";
 import VirtualHugCard from "@/components/home/VirtualHugCard";
 import MemoryLaneSection from "@/components/home/MemoryLaneSection";
-import { loveNotes, memories } from "@/data/demoData";
+import { memories } from "@/data/demoData";
 
 export default function HomePage() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function HomePage() {
       <div className="grid gap-6 md:grid-cols-2">
         <PuchiCounterCard />
         <CountdownCard />
-        <LoveJarCard notes={loveNotes} />
+        <LoveJarCard />
         <VirtualHugCard />
       </div>
       <MemoryLaneSection memories={memories} onViewAll={() => router.push("/memories")} />

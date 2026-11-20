@@ -12,11 +12,11 @@ import RelationshipHero from "@/components/us/RelationshipHero";
 import RelationshipStats, { type RelationshipStat } from "@/components/us/RelationshipStats";
 import SharedPreferences from "@/components/us/SharedPreferences";
 import { usePuchis } from "@/components/puchis/PuchiProvider";
-import { loveNotes } from "@/data/demoData";
 import { useBucketList } from "@/hooks/useBucketList";
 import { useCoupleProfile } from "@/hooks/useCoupleProfile";
 import { useEvents } from "@/hooks/useEvents";
 import { useMemories } from "@/hooks/useMemories";
+import { useLoveJar } from "@/hooks/useLoveJar";
 import { useRelationshipDuration } from "@/hooks/useRelationshipDuration";
 import { useToday } from "@/hooks/useToday";
 import { nextOccurrence } from "@/lib/dates";
@@ -30,8 +30,9 @@ export default function UsPage() {
   const bucketList = useBucketList();
   const { memories } = useMemories();
   const { summary: puchiSummary } = usePuchis();
+  const loveJar = useLoveJar();
 
-  const storageError = profileError || events.error || bucketList.error;
+  const storageError = profileError || events.error || bucketList.error || loveJar.error;
   const milestones = events.events.filter((item) => item.tag === "milestone")
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
   const rawDates = events.events.filter((item) => item.tag === "important-date");
@@ -51,7 +52,7 @@ export default function UsPage() {
     { label: "Milestones celebrated", value: events.ready ? milestones.length : null, source: "shared" },
     { label: "Dreams completed", value: bucketList.completed.length, source: "records" },
     { label: "Puchis exchanged", value: puchiSummary?.totalPuchis ?? null, source: "shared" },
-    { label: "Love notes", value: loveNotes.length, source: "demo" },
+    { label: "Love notes received", value: loveJar.notes?.length ?? null, source: "shared" },
   ];
 
   return (
@@ -63,6 +64,7 @@ export default function UsPage() {
           </p>
         )}
         {events.error && !events.ready && <button type="button" onClick={events.retry} className="button-secondary">Retry loading events</button>}
+        {loveJar.error && loveJar.notes === null && <button type="button" onClick={loveJar.retry} className="button-secondary">Retry loading love notes</button>}
 
         <div className="space-y-6">
           <RelationshipHero profile={profile} duration={duration} onEdit={() => setEditingProfile(true)} />

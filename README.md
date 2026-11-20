@@ -80,8 +80,18 @@ The Home page's Love Jar stores notes in MongoDB for the active relationship.
 Either partner can use the plus button on the card to add a note for the other;
 only the recipient can retrieve and open it. Each partner's count shows notes
 received, not notes they wrote.
-Run `node --experimental-strip-types --no-warnings --test lib/__tests__/love-jar.test.mjs`
+Run `node --experimental-strip-types --no-warnings --test tests/love-jar.test.mjs`
 to check recipient and relationship isolation using mocked database models.
+
+Virtual hugs can be previewed in numerical order from `public/gifs/hugs` before
+sending. The server validates and stores the selected filename, and allows only
+one pending outgoing hug per sender. Existing pending hugs remain queued. The
+recipient sees each hug across the app for at least six seconds after its GIF
+loads and marks it seen with Continue. Both partners must have an active
+relationship, MongoDB must allow index creation, and the GIF assets must be
+present in the deployed `public/gifs/hugs` directory.
+Run `node --experimental-strip-types --no-warnings --test tests/virtual-hug.test.mjs`
+to check hug delivery and authorization with mocked database models.
 
 ## Shared events
 

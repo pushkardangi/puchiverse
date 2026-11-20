@@ -38,6 +38,7 @@ export type ApiErrorCode =
   | "already_connected"
   | "request_exists"
   | "incoming_exists"
+  | "hug_pending"
   | "not_connected"
   | "unavailable"
   | "not_found"

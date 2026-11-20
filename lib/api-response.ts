@@ -10,6 +10,7 @@ const STATUS: Record<ApiErrorCode, number> = {
   already_connected: 409,
   request_exists: 409,
   incoming_exists: 409,
+  hug_pending: 409,
   not_connected: 404,
   unavailable: 404,
   not_found: 404,

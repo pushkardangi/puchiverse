@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import AppHeader from "@/components/layout/AppHeader";
 import BottomNavigation from "@/components/layout/BottomNavigation";
+import VirtualHugInbox from "@/components/home/VirtualHugInbox";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <main className="px-5 sm:px-8">{children}</main>
       </div>
       <BottomNavigation />
+      <VirtualHugInbox />
     </div>
   );
 }

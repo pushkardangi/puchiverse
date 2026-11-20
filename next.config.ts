@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  outputFileTracingIncludes: {
+    "/api/virtual-hugs": ["./public/gifs/hugs/*.gif"],
+  },
   experimental: {
     agentFeedback: true,
   },

@@ -28,7 +28,7 @@ export default function UsPage() {
   const bucketList = useBucketList();
   const importantDates = useImportantDates();
   const { memories } = useMemories();
-  const { count: puchiCount } = usePuchis();
+  const { summary: puchiSummary } = usePuchis();
 
   const storageError = profileError || milestones.error || bucketList.error || importantDates.error;
 
@@ -37,7 +37,7 @@ export default function UsPage() {
     { label: "Memories saved", value: memories.length, source: "records" },
     { label: "Milestones celebrated", value: milestones.milestones.length, source: "records" },
     { label: "Dreams completed", value: bucketList.completed.length, source: "records" },
-    { label: "Puchis exchanged", value: puchiCount, source: "demo" },
+    { label: "Puchis exchanged", value: puchiSummary?.totalPuchis ?? null, source: "shared" },
     { label: "Love notes", value: loveNotes.length, source: "demo" },
   ];
 

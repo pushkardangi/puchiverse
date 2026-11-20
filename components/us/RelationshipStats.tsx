@@ -3,7 +3,7 @@ import { eyebrowClass } from "@/components/us/formStyles";
 export type RelationshipStat = {
   label: string;
   value: number | null;
-  source: "records" | "demo";
+  source: "records" | "demo" | "shared";
 };
 
 export default function RelationshipStats({ stats }: { stats: RelationshipStat[] }) {
@@ -17,12 +17,12 @@ export default function RelationshipStats({ stats }: { stats: RelationshipStat[]
             <dd className="font-serif text-3xl tabular-nums text-[#3E3131]">{stat.value === null ? "–" : stat.value.toLocaleString("en-US")}</dd>
             <dt className="mt-1 text-xs text-[#766D69]">{stat.label}</dt>
             <p className={`mt-3 inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${stat.source === "demo" ? "bg-[#F3ECE8] text-[#8C7C78]" : "bg-[#F7E8E7] text-[#965461]"}`}>
-              {stat.source === "demo" ? "Demo data" : "Saved here"}
+              {stat.source === "demo" ? "Demo data" : stat.source === "shared" ? "Shared" : "Saved here"}
             </p>
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-[11px] leading-5 text-[#A08F8A]">&ldquo;Demo data&rdquo; marks sample figures, not real activity. &ldquo;Saved here&rdquo; is counted from what&apos;s stored in this browser.</p>
+      <p className="mt-3 text-[11px] leading-5 text-[#A08F8A]">&ldquo;Demo data&rdquo; marks sample figures. &ldquo;Saved here&rdquo; is counted from this browser, and &ldquo;Shared&rdquo; is stored for both partners.</p>
     </section>
   );
 }

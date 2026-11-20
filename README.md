@@ -70,12 +70,13 @@ The App Router entry point is `app/page.tsx`. The screen is composed in
 under `components/`. Sample content and the demo date are in `data/demoData.ts`;
 the live day calculation is in `hooks/useCountdown.ts`.
 
-The home and Puchis pages share an in-memory demo counter and session history,
-which reset on reload. The initial total is sample data and has no historical
-entries; the seven-day graph counts only puchis added during the current session,
-grouped by the device's local date. No backend is connected, so puchis and prepared hugs are not delivered.
-Memories and Us navigation still changes the selection only. Replace the demo
-date and remote sample images when real content is available.
+The Home and Puchis pages use the MongoDB-backed puchi transaction history for
+the shared count and sent/received statistics. Sending requires an authenticated
+user with an active relationship, and request idempotency is enforced by a
+couple- and sender-scoped unique index. `GET /api/puchis/history?page=1&limit=20`
+returns a newest-first page of minimal sender details. Memories and Us content
+still includes demo data; replace the demo date and remote sample images when
+real content is available.
 
 ## Learn More
 

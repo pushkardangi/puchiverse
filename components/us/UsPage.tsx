@@ -65,6 +65,7 @@ export default function UsPage() {
         )}
         {events.error && !events.ready && <button type="button" onClick={events.retry} className="button-secondary">Retry loading events</button>}
         {loveJar.error && loveJar.notes === null && <button type="button" onClick={loveJar.retry} className="button-secondary">Retry loading love notes</button>}
+        {bucketList.error && !bucketList.ready && <button type="button" onClick={bucketList.retry} className="button-secondary">Retry loading bucket list</button>}
 
         <div className="space-y-6">
           <RelationshipHero profile={profile} duration={duration} onEdit={() => setEditingProfile(true)} />
@@ -89,6 +90,8 @@ export default function UsPage() {
             total={bucketList.items.length}
             pending={bucketList.pending}
             completed={bucketList.completed}
+            loading={bucketList.loading}
+            available={bucketList.ready}
             onAdd={bucketList.addItem}
             onUpdate={bucketList.updateItem}
             onToggle={bucketList.toggleItem}

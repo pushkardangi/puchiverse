@@ -1,50 +1,122 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  createId,
-  defaultBucketList,
-  isArrayOf,
-  isBucketListItem,
-  US_STORAGE_KEYS,
-  type BucketListItem,
-} from "@/data/relationshipData";
-import { usePersistentState } from "@/hooks/usePersistentState";
+  BucketListRequestError,
+  createBucketListItem,
+  deleteBucketListItem,
+  fetchBucketList,
+  toggleBucketListItem,
+  updateBucketListItem,
+} from "@/lib/bucket-list-client";
+import type { BucketListInput, BucketListItem } from "@/lib/bucket-list-types";
 
-export type BucketListInput = Pick<BucketListItem, "title" | "description">;
+export type { BucketListInput } from "@/lib/bucket-list-types";
 
-const validate = isArrayOf(isBucketListItem);
+function messageOf(error: unknown) {
+  return error instanceof BucketListRequestError
+    ? error.message
+    : "Could not update the bucket list. Please try again.";
+}
 
 export function useBucketList() {
-  const { value: items, setValue, ready, error } = usePersistentState<BucketListItem[]>({
-    key: US_STORAGE_KEYS.bucketList,
-    fallback: defaultBucketList,
-    validate,
-  });
+  const [items, setItems] = useState<BucketListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
-  const completed = items.filter((item) => item.isCompleted).sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBucketList(controller.signal)
+      .then(({ data }) => {
+        setItems(data);
+        setReady(true);
+        setError("");
+      })
+      .catch((reason: unknown) => {
+        if (!controller.signal.aborted) setError(messageOf(reason));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [loadAttempt]);
+
+  const addItem = useCallback(async (input: BucketListInput) => {
+    setError("");
+    try {
+      const { data } = await createBucketListItem(input);
+      setItems((current) => [data, ...current]);
+      return data;
+    } catch (reason) {
+      setError(messageOf(reason));
+      return null;
+    }
+  }, []);
+
+  const updateItem = useCallback(async (id: string, input: BucketListInput) => {
+    setError("");
+    try {
+      const { data } = await updateBucketListItem(id, input);
+      setItems((current) =>
+        current.map((item) => (item.id === id ? data : item)),
+      );
+      return data;
+    } catch (reason) {
+      setError(messageOf(reason));
+      return null;
+    }
+  }, []);
+
+  const toggleItem = useCallback(async (id: string) => {
+    setError("");
+    try {
+      const { data } = await toggleBucketListItem(id);
+      setItems((current) =>
+        current.map((item) => (item.id === id ? data : item)),
+      );
+      return data;
+    } catch (reason) {
+      setError(messageOf(reason));
+      return null;
+    }
+  }, []);
+
+  const deleteItem = useCallback(async (id: string) => {
+    setError("");
+    try {
+      await deleteBucketListItem(id);
+      setItems((current) => current.filter((item) => item.id !== id));
+      return true;
+    } catch (reason) {
+      setError(messageOf(reason));
+      return false;
+    }
+  }, []);
+
+  const retry = useCallback(() => {
+    setError("");
+    setLoading(true);
+    setLoadAttempt((attempt) => attempt + 1);
+  }, []);
+
+  const completed = items
+    .filter((item) => item.isCompleted)
+    .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
   const pending = items.filter((item) => !item.isCompleted);
 
-  const addItem = useCallback((input: BucketListInput) => {
-    const item: BucketListItem = { ...input, id: createId("bucket"), isCompleted: false, completedAt: null, createdAt: new Date().toISOString() };
-    setValue((current) => [item, ...current]);
-  }, [setValue]);
-
-  const updateItem = useCallback((id: string, input: BucketListInput) => {
-    setValue((current) => current.map((item) => (item.id === id ? { ...item, ...input } : item)));
-  }, [setValue]);
-
-  const toggleItem = useCallback((id: string) => {
-    setValue((current) => current.map((item) => (
-      item.id === id
-        ? { ...item, isCompleted: !item.isCompleted, completedAt: item.isCompleted ? null : new Date().toISOString() }
-        : item
-    )));
-  }, [setValue]);
-
-  const deleteItem = useCallback((id: string) => {
-    setValue((current) => current.filter((item) => item.id !== id));
-  }, [setValue]);
-
-  return { items, completed, pending, ready, error, addItem, updateItem, toggleItem, deleteItem };
+  return {
+    items,
+    completed,
+    pending,
+    loading,
+    ready,
+    error,
+    retry,
+    addItem,
+    updateItem,
+    toggleItem,
+    deleteItem,
+  };
 }

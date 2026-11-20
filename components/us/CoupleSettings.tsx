@@ -101,7 +101,7 @@ export default function CoupleSettings({ settings, onChange, onEditProfile }: Co
               <div className="mt-6 space-y-3 text-sm leading-6 text-[#665753]">
                 <p className="font-serif text-lg italic text-[#7B6A66]">Your little world, just for two.</p>
                 <p>Puchiverse is a private space for two people to keep their story, plan their future and send each other small moments of love.</p>
-                <p className="text-xs text-[#A08F8A]">Version 0.1.0 · Frontend demo. Data stays in this browser.</p>
+                <p className="text-xs text-[#A08F8A]">Version 0.1.0</p>
               </div>
             )}
             {sheet === "signout" && (

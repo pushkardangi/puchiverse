@@ -9,8 +9,9 @@ const userSchema = new mongoose.Schema(
     emailAddresses: [{ type: String, trim: true, lowercase: true }],
     firstName: { type: String, default: null },
     lastName: { type: String, default: null },
-    username: { type: String, default: null },
+    username: { type: String, trim: true, lowercase: true, default: null },
     avatar: { type: String, default: null },
+    discoverable: { type: Boolean, default: true },
     deletedAt: { type: Date, default: null },
     mergedIntoClerkId: { type: String, default: null },
     clerkUpdatedAt: { type: Number, default: null },
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
 
 export type UserDocument = InferSchemaType<typeof userSchema>;
 

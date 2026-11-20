@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Heart, House, UserRound } from "lucide-react";
+import { Camera, Heart, House, Search, UserRound } from "lucide-react";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,6 +8,7 @@ const navItems = [
   { id: "home", label: "Home", icon: House, href: "/" },
   { id: "puchis", label: "Puchis", icon: Heart, href: "/puchis" },
   { id: "memories", label: "Memories", icon: Camera, href: "/memories" },
+  { id: "search", label: "Search", icon: Search, href: "/search" },
   { id: "profile", label: "Us", icon: UserRound, href: "/us" },
 ] as const;
 

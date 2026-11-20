@@ -40,6 +40,25 @@ database on a transaction-capable MongoDB deployment. The test creates and
 removes its own uniquely named records, and verifies real signatures using a
 temporary test secret. The test runner requires Node.js 22.15 or later.
 
+## Partner search and relationship requests
+
+Users without an active couple see "Find Your Person" on the Search tab of the
+bottom navigation. The section is
+shown only when `GET /api/relationships/me` reports `status: "single"`.
+`GET /api/users/search?username=` performs an exact, case-insensitive lookup
+(leading `@` stripped) and returns at most one minimal public profile; the
+caller, deleted, merged, undiscoverable (`discoverable: false`) and already
+coupled users all produce the same empty result. `POST /api/relationship-requests`
+(`{ receiverId }`) and `POST /api/relationship-requests/[requestId]/accept`
+derive the caller from the Clerk session. Accepting runs in a MongoDB
+transaction; a single `relationships` collection tracks each relationship from
+pending request to active (or ended/rejected/cancelled), and unique partial
+indexes guarantee one pending request per user pair
+and one active relationship per user. Searches and requests are limited to 10 per
+minute per user using in-memory counters, which are per server instance; use a
+shared store for strict limits across instances. Run
+`npm run test:partner-search` with `MONGODB_TEST_URI` set as above.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

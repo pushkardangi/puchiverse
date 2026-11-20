@@ -16,7 +16,7 @@ export default function AppHeader() {
               puchiverse<span className="text-[#B66D79]">.</span>
             </span>
           </div>
-          <p className="mt-2 text-xs text-[#766d69]">Your little world, just for two.</p>
+          <p className="mt-2 text-xs text-[#766d69]">Our little world, just for two.</p>
         </div>
         <div className="flex min-h-9 shrink-0 items-center justify-end">
           <Suspense fallback={<div aria-hidden="true" className="h-9 w-20" />}>

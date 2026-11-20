@@ -16,6 +16,30 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+Copy `.env.example` to `.env.local` and configure the Clerk keys and
+`MONGODB_URI` with a MongoDB Atlas connection string. Set
+`CLERK_WEBHOOK_SIGNING_SECRET` to the signing secret for a Clerk webhook
+endpoint at `/api/webhooks/clerk` subscribed to `user.created`, `user.updated`,
+`user.deleted`, and `user.merged`. Keep both secrets server-side and never
+commit credentials. With the app running, `GET /api/health/db` checks database
+connectivity and returns 503 when unavailable.
+
+Webhook processing requires a transaction-capable MongoDB deployment, such as
+an Atlas replica set, and permission to create indexes. Clerk delivery is
+asynchronous: a missing database user is allowed while synchronization is
+pending, but a soft-deleted user is denied access to the protected pages. A
+merge retains both user records, marking the deleted identity with
+`mergedIntoClerkId`; no application-owned data is deleted or moved. Future
+features storing user references must resolve this mapping explicitly.
+Profile updates are ordered by Clerk's user update time and then event time;
+events with identical values for both cannot be ordered reliably. Existing
+Clerk users require a separate backfill or a replay of their user events.
+
+Run `npm run test:webhooks` with `MONGODB_TEST_URI` set to a dedicated test
+database on a transaction-capable MongoDB deployment. The test creates and
+removes its own uniquely named records, and verifies real signatures using a
+temporary test secret. The test runner requires Node.js 22.15 or later.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

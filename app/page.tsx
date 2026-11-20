@@ -1,7 +1,7 @@
-import { auth } from "@clerk/nextjs/server";
+import { requireActiveUser } from "@/lib/require-active-user";
 import HomePage from "@/components/home/HomePage";
 
 export default async function Page() {
-  await auth.protect();
+  await requireActiveUser();
   return <HomePage />;
 }

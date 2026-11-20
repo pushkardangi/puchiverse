@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { AlertCircle, Heart } from "lucide-react";
-import AppLayout from "@/components/layout/AppLayout";
-import type { NavigationItem } from "@/components/layout/BottomNavigation";
 import BucketListSection from "@/components/us/BucketListSection";
 import CoupleProfileForm from "@/components/us/CoupleProfileForm";
 import CoupleSettings from "@/components/us/CoupleSettings";
@@ -23,7 +21,6 @@ import { useMilestones } from "@/hooks/useMilestones";
 import { useRelationshipDuration } from "@/hooks/useRelationshipDuration";
 
 export default function UsPage() {
-  const [active, setActive] = useState<NavigationItem>("profile");
   const [editingProfile, setEditingProfile] = useState(false);
   const { profile, updateProfile, preferences, updatePreferences, settings, updateSettings, error: profileError } = useCoupleProfile();
   const duration = useRelationshipDuration(profile.relationshipStartDate);
@@ -45,7 +42,7 @@ export default function UsPage() {
   ];
 
   return (
-    <AppLayout active={active} onSelect={setActive}>
+    <>
       <div className="space-y-12 pb-4 pt-1 sm:space-y-14 sm:pb-8">
         {storageError && (
           <p role="alert" className="flex items-start gap-2 rounded-2xl border border-[#E8C9C9] bg-[#FFF4F3] px-4 py-3 text-xs leading-5 text-[#914E58]">
@@ -120,6 +117,6 @@ export default function UsPage() {
           }}
         />
       )}
-    </AppLayout>
+    </>
   );
 }

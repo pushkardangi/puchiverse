@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { AlertCircle, Heart } from "lucide-react";
-import AppLayout from "@/components/layout/AppLayout";
-import type { NavigationItem } from "@/components/layout/BottomNavigation";
 import MemoryPageHeader from "@/components/memories/MemoryPageHeader";
 import FeaturedMemory from "@/components/memories/FeaturedMemory";
 import MemoryFilters, { type MemoryFilter } from "@/components/memories/MemoryFilters";
@@ -16,7 +14,6 @@ import type { Memory } from "@/data/memories";
 
 export default function MemoriesPage() {
   const { memories, storageError, addMemory, updateMemory, deleteMemory, toggleFeatured } = useMemories();
-  const [active, setActive] = useState<NavigationItem>("memories");
   const [filter, setFilter] = useState<MemoryFilter>("All");
   const [detailId, setDetailId] = useState<string>();
   const [formMemory, setFormMemory] = useState<Memory | "new">();
@@ -53,7 +50,7 @@ export default function MemoriesPage() {
   const changeFeatured = (memory: Memory) => toggleFeatured(memory.id);
 
   return (
-    <AppLayout active={active} onSelect={setActive}>
+    <>
       <div className="pb-4 pt-1 sm:pb-8">
         <MemoryPageHeader count={memories.length} onAdd={() => setFormMemory("new")} />
         {storageError && (
@@ -102,6 +99,6 @@ export default function MemoriesPage() {
           onSave={saveMemory}
         />
       )}
-    </AppLayout>
+    </>
   );
 }

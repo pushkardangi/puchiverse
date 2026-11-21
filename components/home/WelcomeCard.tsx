@@ -18,7 +18,7 @@ export default function WelcomeCard() {
       <svg
         aria-hidden="true"
         viewBox="0 0 120 150"
-        className="animate-sunflower-sway absolute -bottom-2 right-3 h-36 w-28 origin-bottom opacity-90 sm:right-8 sm:h-44 sm:w-36"
+        className="animate-sunflower-sway absolute -bottom-4 sm:bottom-0 right-0 h-36 w-28 origin-bottom opacity-90 sm:right-8 sm:h-44 sm:w-36"
       >
         <path d="M60 83 C58 108 62 126 60 150" fill="none" stroke="#68834A" strokeLinecap="round" strokeWidth="5" />
         <path d="M59 123 C43 110 35 118 39 130 C46 134 54 130 59 123Z" fill="#80975A" />

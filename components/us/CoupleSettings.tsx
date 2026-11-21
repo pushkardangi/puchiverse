@@ -6,7 +6,6 @@ import { SignOutButton } from "@clerk/nextjs";
 import ModalShell from "@/components/memories/ModalShell";
 import ToggleRow from "@/components/us/ToggleRow";
 import { dangerButtonClass, eyebrowClass } from "@/components/us/formStyles";
-import { US_STORAGE_KEYS } from "@/data/relationshipData";
 
 type SheetKind = "notifications" | "privacy" | "theme" | "about" | "signout";
 
@@ -21,7 +20,7 @@ const rows: { id: SheetKind | "profile"; label: string; hint: string; icon: Luci
   { id: "privacy", label: "Privacy settings", hint: "Keep your world just for two", icon: ShieldCheck },
   { id: "theme", label: "Theme preferences", hint: "Ivory", icon: Palette },
   { id: "about", label: "About Puchiverse", hint: "Version and credits", icon: Info },
-  { id: "signout", label: "Sign out", hint: "Sign out or reset local settings", icon: LogOut },
+  { id: "signout", label: "Sign out", hint: "Sign out of your account", icon: LogOut },
 ];
 
 const sheetTitles: Record<SheetKind, string> = {
@@ -34,12 +33,6 @@ const sheetTitles: Record<SheetKind, string> = {
 
 export default function CoupleSettings({ onEditProfile, profileAvailable }: CoupleSettingsProps) {
   const [sheet, setSheet] = useState<SheetKind>();
-
-  const resetDemoData = () => {
-    if (!window.confirm("Reset the Us settings saved on this device? Shared profile, milestones, bucket list and dates will not be changed.")) return;
-    window.localStorage.removeItem(US_STORAGE_KEYS.settings);
-    window.location.reload();
-  };
 
   return (
     <section aria-labelledby="settings-title">
@@ -98,19 +91,48 @@ export default function CoupleSettings({ onEditProfile, profileAvailable }: Coup
               </div>
             )}
             {sheet === "about" && (
-              <div className="mt-6 space-y-3 text-sm leading-6 text-[#665753]">
+              <div className="mt-6 space-y-5 text-sm leading-6 text-[#665753]">
                 <p className="font-serif text-lg italic text-[#7B6A66]">Your little world, just for two.</p>
-                <p>Puchiverse is a private space for two people to keep their story, plan their future and send each other small moments of love.</p>
-                <p className="text-xs text-[#A08F8A]">Version 0.1.0</p>
+                <p>Puchiverse is a private, relationship-focused space where two people can celebrate moments, plan together and keep small acts of affection in one place.</p>
+
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8C7C78]">How Puchiverse works</p>
+                  <ul className="space-y-2">
+                    <li className="rounded-2xl border border-[#EEE5E0] bg-[#FCF8F6] px-4 py-3">
+                      <span className="font-medium text-[#4A3F3E]">Connect with your person</span>
+                      <span className="block text-xs leading-5 text-[#8C7C78]">Search by username and accept a relationship request to start sharing features.</span>
+                    </li>
+                    <li className="rounded-2xl border border-[#EEE5E0] bg-[#FCF8F6] px-4 py-3">
+                      <span className="font-medium text-[#4A3F3E]">Share your story</span>
+                      <span className="block text-xs leading-5 text-[#8C7C78]">Save milestones, important dates, memories and bucket-list goals together.</span>
+                    </li>
+                    <li className="rounded-2xl border border-[#EEE5E0] bg-[#FCF8F6] px-4 py-3">
+                      <span className="font-medium text-[#4A3F3E]">Send small moments of love</span>
+                      <span className="block text-xs leading-5 text-[#8C7C78]">Exchange puchis, love notes and virtual hugs to make ordinary days feel special.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="rounded-2xl border border-[#EEE5E0] px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8C7C78]">Built for understanding</p>
+                  <p className="mt-1 text-xs leading-5 text-[#8C7C78]">Puchiverse helps couples keep context close: what happened, what matters, and what they hope to experience next. Account access and shared relationship data keep the experience connected to the right two people.</p>
+                </div>
+
+                <div className="border-t border-[#EEE5E0] pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8C7C78]">Developer</p>
+                  <p className="mt-1 font-medium text-[#665753]">Pushkar Dangi</p>
+                  <a href="mailto:web.pushkar@gmail.com" className="text-[#A35C69] underline underline-offset-2">web.pushkar@gmail.com</a>
+                  <p className="text-xs text-[#A08F8A]">3+ years of web development experience</p>
+                </div>
+                <p className="text-xs text-[#A08F8A]">Puchiverse · Version 0.1.0</p>
               </div>
             )}
             {sheet === "signout" && (
               <div className="mt-6 space-y-4 text-sm leading-6 text-[#665753]">
-                <p>Sign out of your Clerk account, or reset the Us settings stored in this browser.</p>
+                <p>Sign out of your Puchiverse account.</p>
                 <SignOutButton>
                   <button type="button" className={`${dangerButtonClass} w-full`}>Sign out</button>
                 </SignOutButton>
-                <button type="button" onClick={resetDemoData} className={`${dangerButtonClass} w-full`}>Reset Us settings</button>
               </div>
             )}
           </div>

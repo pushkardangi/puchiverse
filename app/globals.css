@@ -60,8 +60,18 @@ button:not(:disabled) {
   animation: us-pop 0.9s ease-out;
 }
 
+@keyframes sunflower-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+
+.animate-sunflower-sway {
+  animation: sunflower-sway 3s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-us-pop {
+  .animate-us-pop,
+  .animate-sunflower-sway {
     animation: none;
   }
   *, *::before, *::after {

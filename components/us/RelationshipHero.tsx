@@ -44,7 +44,7 @@ export default function RelationshipHero({ profile, duration, onEdit }: Relation
       </div>
 
       <h1 id="us-title" className="mx-auto mt-6 max-w-full break-words font-serif text-3xl font-medium tracking-tight text-[#342B2C] sm:text-5xl">
-        {partnerOne.name} <span className="font-sans font-light text-[#B66D79]">+</span> {partnerTwo.name}
+        {partnerOne.name} <span className="font-sans font-light text-[#B66D79]">&nbsp;&&nbsp;</span> {partnerTwo.name}
       </h1>
       {(partnerOne.nickname || partnerTwo.nickname) && (
         <p className="mt-2 text-xs text-[#8C7C78]">

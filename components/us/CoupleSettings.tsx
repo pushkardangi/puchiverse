@@ -6,14 +6,13 @@ import { SignOutButton } from "@clerk/nextjs";
 import ModalShell from "@/components/memories/ModalShell";
 import ToggleRow from "@/components/us/ToggleRow";
 import { dangerButtonClass, eyebrowClass } from "@/components/us/formStyles";
-import { US_STORAGE_KEYS, type AppSettings } from "@/data/relationshipData";
+import { US_STORAGE_KEYS } from "@/data/relationshipData";
 
 type SheetKind = "notifications" | "privacy" | "theme" | "about" | "signout";
 
 type CoupleSettingsProps = {
-  settings: AppSettings;
-  onChange: (update: (current: AppSettings) => AppSettings) => void;
   onEditProfile: () => void;
+  profileAvailable: boolean;
 };
 
 const rows: { id: SheetKind | "profile"; label: string; hint: string; icon: LucideIcon }[] = [
@@ -22,7 +21,7 @@ const rows: { id: SheetKind | "profile"; label: string; hint: string; icon: Luci
   { id: "privacy", label: "Privacy settings", hint: "Keep your world just for two", icon: ShieldCheck },
   { id: "theme", label: "Theme preferences", hint: "Ivory", icon: Palette },
   { id: "about", label: "About Puchiverse", hint: "Version and credits", icon: Info },
-  { id: "signout", label: "Sign out", hint: "Sign out or reset demo data", icon: LogOut },
+  { id: "signout", label: "Sign out", hint: "Sign out or reset local settings", icon: LogOut },
 ];
 
 const sheetTitles: Record<SheetKind, string> = {
@@ -33,12 +32,12 @@ const sheetTitles: Record<SheetKind, string> = {
   signout: "Sign out",
 };
 
-export default function CoupleSettings({ settings, onChange, onEditProfile }: CoupleSettingsProps) {
+export default function CoupleSettings({ onEditProfile, profileAvailable }: CoupleSettingsProps) {
   const [sheet, setSheet] = useState<SheetKind>();
 
   const resetDemoData = () => {
-    if (!window.confirm("Reset all Us screen demo data on this device? Milestones, bucket list, dates and profile return to their defaults.")) return;
-    Object.values(US_STORAGE_KEYS).forEach((key) => window.localStorage.removeItem(key));
+    if (!window.confirm("Reset the Us settings saved on this device? Shared profile, milestones, bucket list and dates will not be changed.")) return;
+    window.localStorage.removeItem(US_STORAGE_KEYS.settings);
     window.location.reload();
   };
 
@@ -50,8 +49,9 @@ export default function CoupleSettings({ settings, onChange, onEditProfile }: Co
           <li key={id}>
             <button
               type="button"
+              disabled={id === "profile" && !profileAvailable}
               onClick={() => (id === "profile" ? onEditProfile() : setSheet(id))}
-              className="flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FCF8F6]"
+              className="flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-[#FCF8F6] disabled:opacity-50"
             >
               <Icon aria-hidden="true" size={18} strokeWidth={1.7} className="shrink-0 text-[#8C7C78]" />
               <span className="min-w-0 flex-1">
@@ -72,17 +72,17 @@ export default function CoupleSettings({ settings, onChange, onEditProfile }: Co
 
             {sheet === "notifications" && (
               <div className="mt-6 space-y-3">
-                <ToggleRow label="Important date reminders" hint="For dates where you turned reminders on." checked={settings.notifications.dateReminders} onChange={(checked) => onChange((c) => ({ ...c, notifications: { ...c.notifications, dateReminders: checked } }))} />
-                <ToggleRow label="Puchis" hint="When your person sends one." checked={settings.notifications.puchis} onChange={(checked) => onChange((c) => ({ ...c, notifications: { ...c.notifications, puchis: checked } }))} />
-                <ToggleRow label="Memories and milestones" hint="Gentle nudges to look back." checked={settings.notifications.memories} onChange={(checked) => onChange((c) => ({ ...c, notifications: { ...c.notifications, memories: checked } }))} />
-                <p className="text-[11px] leading-5 text-[#A08F8A]">Preferences are saved on this device. Delivery starts once push notifications are connected.</p>
+                <ToggleRow label="Important date reminders" hint="For dates where you turned reminders on." checked={false} onChange={() => {}} disabled />
+                <ToggleRow label="Hugs" hint="When your person sends you a hug." checked={false} onChange={() => {}} disabled />
+                <ToggleRow label="Memories and milestones" hint="Gentle nudges to look back." checked={false} onChange={() => {}} disabled />
+                <p className="text-[11px] leading-5 text-[#A08F8A]">Notifications are off for now. These preferences will become available when push notifications are connected.</p>
               </div>
             )}
             {sheet === "privacy" && (
               <div className="mt-6 space-y-3">
-                <ToggleRow label="Hide previews" hint="Blur photographs until tapped." checked={settings.privacy.hidePreviews} onChange={(checked) => onChange((c) => ({ ...c, privacy: { ...c.privacy, hidePreviews: checked } }))} />
-                <ToggleRow label="Require unlock" hint="Ask for a passcode when opening the app." checked={settings.privacy.requireUnlock} onChange={(checked) => onChange((c) => ({ ...c, privacy: { ...c.privacy, requireUnlock: checked } }))} />
-                <p className="text-[11px] leading-5 text-[#A08F8A]">Saved as preferences. They&apos;ll take effect once accounts and secure storage are added.</p>
+                <ToggleRow label="Hide previews" hint="Blur photographs until tapped." checked={false} onChange={() => {}} disabled />
+                <ToggleRow label="Require unlock" hint="Ask for a passcode when opening the app." checked={false} onChange={() => {}} disabled />
+                <p className="text-[11px] leading-5 text-[#A08F8A]">Privacy settings are off for now. They&apos;ll become available once accounts and secure storage are added.</p>
               </div>
             )}
             {sheet === "theme" && (
@@ -106,11 +106,11 @@ export default function CoupleSettings({ settings, onChange, onEditProfile }: Co
             )}
             {sheet === "signout" && (
               <div className="mt-6 space-y-4 text-sm leading-6 text-[#665753]">
-                <p>Sign out of your Clerk account, or reset the demo data stored in this browser.</p>
+                <p>Sign out of your Clerk account, or reset the Us settings stored in this browser.</p>
                 <SignOutButton>
                   <button type="button" className={`${dangerButtonClass} w-full`}>Sign out</button>
                 </SignOutButton>
-                <button type="button" onClick={resetDemoData} className={`${dangerButtonClass} w-full`}>Reset Us demo data</button>
+                <button type="button" onClick={resetDemoData} className={`${dangerButtonClass} w-full`}>Reset Us settings</button>
               </div>
             )}
           </div>

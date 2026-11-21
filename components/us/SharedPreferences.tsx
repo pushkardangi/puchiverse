@@ -9,7 +9,8 @@ import type { CoupleProfile, SharedPreferences as Preferences } from "@/data/rel
 type SharedPreferencesProps = {
   profile: CoupleProfile;
   preferences: Preferences;
-  onSave: (profile: Pick<CoupleProfile, "tagline"> & { nicknames: [string, string] }, preferences: Preferences) => void;
+  onSave: (profile: Pick<CoupleProfile, "tagline"> & { nicknames: [string, string] }, preferences: Preferences) => Promise<boolean>;
+  saveError?: string;
 };
 
 function Chips({ icon: Icon, title, items }: { icon: typeof Music2; title: string; items: string[] }) {
@@ -29,7 +30,7 @@ function Chips({ icon: Icon, title, items }: { icon: typeof Music2; title: strin
   );
 }
 
-export default function SharedPreferences({ profile, preferences, onSave }: SharedPreferencesProps) {
+export default function SharedPreferences({ profile, preferences, onSave, saveError }: SharedPreferencesProps) {
   const [editing, setEditing] = useState(false);
   const { partnerOne, partnerTwo } = profile;
 
@@ -70,10 +71,8 @@ export default function SharedPreferences({ profile, preferences, onSave }: Shar
           profile={profile}
           preferences={preferences}
           onClose={() => setEditing(false)}
-          onSave={(profileChanges, nextPreferences) => {
-            onSave(profileChanges, nextPreferences);
-            setEditing(false);
-          }}
+          onSave={onSave}
+          saveError={saveError}
         />
       )}
     </section>

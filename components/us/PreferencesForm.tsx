@@ -9,27 +9,32 @@ type PreferencesFormProps = {
   profile: CoupleProfile;
   preferences: SharedPreferences;
   onClose: () => void;
-  onSave: (profile: Pick<CoupleProfile, "tagline"> & { nicknames: [string, string] }, preferences: SharedPreferences) => void;
+  onSave: (profile: Pick<CoupleProfile, "tagline"> & { nicknames: [string, string] }, preferences: SharedPreferences) => Promise<boolean>;
+  saveError?: string;
 };
 
 const toLines = (items: string[]) => items.join("\n");
 const fromLines = (text: string) =>
   [...new Set(text.split("\n").map((line) => line.trim()).filter(Boolean))].slice(0, 12).map((line) => line.slice(0, 60));
 
-export default function PreferencesForm({ profile, preferences, onClose, onSave }: PreferencesFormProps) {
+export default function PreferencesForm({ profile, preferences, onClose, onSave, saveError }: PreferencesFormProps) {
   const [nicknameOne, setNicknameOne] = useState(profile.partnerOne.nickname);
   const [nicknameTwo, setNicknameTwo] = useState(profile.partnerTwo.nickname);
   const [tagline, setTagline] = useState(profile.tagline);
   const [activities, setActivities] = useState(toLines(preferences.activities));
   const [songs, setSongs] = useState(toLines(preferences.songs));
   const [places, setPlaces] = useState(toLines(preferences.places));
+  const [saving, setSaving] = useState(false);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSave(
+    setSaving(true);
+    const saved = await onSave(
       { tagline: tagline.trim(), nicknames: [nicknameOne.trim(), nicknameTwo.trim()] },
       { activities: fromLines(activities), songs: fromLines(songs), places: fromLines(places) },
     );
+    if (saved) onClose();
+    setSaving(false);
   };
 
   const listField = (label: string, value: string, set: (value: string) => void, placeholder: string) => (
@@ -40,8 +45,9 @@ export default function PreferencesForm({ profile, preferences, onClose, onSave 
   );
 
   return (
-    <ModalShell titleId="preferences-form-title" onClose={onClose}>
+    <ModalShell titleId="preferences-form-title" onClose={() => { if (!saving) onClose(); }}>
       <form onSubmit={submit} className="p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-8">
+        <fieldset disabled={saving}>
         <p className={eyebrowClass}>Shared preferences</p>
         <h2 id="preferences-form-title" className="mt-2 pr-12 font-serif text-3xl text-[#3E3131]">The little things we love</h2>
         <div className="mt-7 grid gap-5 sm:grid-cols-2">
@@ -61,10 +67,12 @@ export default function PreferencesForm({ profile, preferences, onClose, onSave 
           {listField("Favourite songs", songs, setSongs, "Our road trip playlist")}
           {listField("Favourite places", places, setPlaces, "Marine Drive")}
         </div>
+        {saveError && <p role="alert" className="mt-5 rounded-xl bg-[#FFF0EF] px-4 py-3 text-xs text-[#9A4652]">{saveError}</p>}
         <div className="mt-7 flex gap-3">
           <button type="button" onClick={onClose} className="button-secondary">Cancel</button>
-          <button type="submit" className="button-primary">Save preferences</button>
+          <button type="submit" disabled={saving} className="button-primary">{saving ? "Saving..." : "Save preferences"}</button>
         </div>
+        </fieldset>
       </form>
     </ModalShell>
   );

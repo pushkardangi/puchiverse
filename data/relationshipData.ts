@@ -169,7 +169,7 @@ export const defaultPreferences: SharedPreferences = {
 };
 
 export const defaultSettings: AppSettings = {
-  notifications: { dateReminders: true, puchis: true, memories: false },
+  notifications: { dateReminders: false, puchis: false, memories: false },
   privacy: { hidePreviews: false, requireUnlock: false },
   theme: "ivory",
 };

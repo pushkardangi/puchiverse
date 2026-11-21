@@ -110,6 +110,20 @@ previews and are not saved or shared. Reminder settings are saved but do not
 send notifications yet. Run `node --experimental-strip-types --no-warnings --test tests/events.test.mjs`
 to check event validation and countdown behavior.
 
+## Couple profile
+
+`GET /api/couple-profile` returns the active couple's profile and shared
+preferences. Both partners can update names, nicknames, start date, tagline and
+preferences with `PATCH /api/couple-profile`. Names and photos initially come
+from their account records; the start date is blank until set. Profile edits
+are scoped to the active relationship. Photo changes in the form are temporary
+device-only previews; they are not saved or shared. Us settings remain local to
+the device, and earlier browser-only profile and preference data is left
+untouched and is not imported.
+
+Run `node --experimental-strip-types --no-warnings --test tests/couple-profile.test.mjs`
+to check validation and relationship isolation with mocked database models.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -22,7 +22,6 @@ export default function RelationshipStats({ stats }: { stats: RelationshipStat[]
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-[11px] leading-5 text-[#A08F8A]">&ldquo;Demo data&rdquo; marks sample figures. &ldquo;Saved here&rdquo; is counted from this browser, and &ldquo;Shared&rdquo; is stored for both partners.</p>
     </section>
   );
 }

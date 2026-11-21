@@ -23,8 +23,8 @@ import { nextOccurrence } from "@/lib/dates";
 
 export default function UsPage() {
   const [editingProfile, setEditingProfile] = useState(false);
-  const { profile, updateProfile, preferences, updatePreferences, settings, updateSettings, error: profileError } = useCoupleProfile();
-  const duration = useRelationshipDuration(profile.relationshipStartDate);
+  const { profile, updateProfile, preferences, updatePreferences, loading: profileLoading, error: profileError, settingsError, retry: retryProfile } = useCoupleProfile();
+  const duration = useRelationshipDuration(profile?.relationshipStartDate ?? "");
   const events = useEvents();
   const today = useToday();
   const bucketList = useBucketList();
@@ -32,7 +32,7 @@ export default function UsPage() {
   const { summary: puchiSummary } = usePuchis();
   const loveJar = useLoveJar();
 
-  const storageError = profileError || events.error || bucketList.error || loveJar.error;
+  const storageError = profileError || settingsError || events.error || bucketList.error || loveJar.error;
   const milestones = events.events.filter((item) => item.tag === "milestone")
     .sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
   const rawDates = events.events.filter((item) => item.tag === "important-date");
@@ -66,11 +66,14 @@ export default function UsPage() {
         {events.error && !events.ready && <button type="button" onClick={events.retry} className="button-secondary">Retry loading events</button>}
         {loveJar.error && loveJar.notes === null && <button type="button" onClick={loveJar.retry} className="button-secondary">Retry loading love notes</button>}
         {bucketList.error && !bucketList.ready && <button type="button" onClick={bucketList.retry} className="button-secondary">Retry loading bucket list</button>}
+        {profileError && !profile && <button type="button" onClick={retryProfile} className="button-secondary">Retry loading profile</button>}
 
-        <div className="space-y-6">
-          <RelationshipHero profile={profile} duration={duration} onEdit={() => setEditingProfile(true)} />
-          <RelationshipDuration duration={duration} />
-        </div>
+        {profile ? (
+          <div className="space-y-6">
+            <RelationshipHero profile={profile} duration={duration} onEdit={() => setEditingProfile(true)} />
+            <RelationshipDuration duration={duration} />
+          </div>
+        ) : profileLoading ? <p role="status" className="text-sm text-[#766D69]">Loading your couple profile...</p> : null}
 
         <MilestonesSection
           milestones={milestones}
@@ -115,21 +118,11 @@ export default function UsPage() {
 
         <RelationshipStats stats={stats} />
 
-        <SharedPreferences
-          profile={profile}
-          preferences={preferences}
-          onSave={({ tagline, nicknames }, nextPreferences) => {
-            updateProfile((current) => ({
-              ...current,
-              tagline,
-              partnerOne: { ...current.partnerOne, nickname: nicknames[0] },
-              partnerTwo: { ...current.partnerTwo, nickname: nicknames[1] },
-            }));
-            updatePreferences(nextPreferences);
-          }}
-        />
+        {profile && preferences && (
+          <SharedPreferences profile={profile} preferences={preferences} onSave={updatePreferences} saveError={profileError} />
+        )}
 
-        <CoupleSettings settings={settings} onChange={updateSettings} onEditProfile={() => setEditingProfile(true)} />
+        <CoupleSettings onEditProfile={() => setEditingProfile(true)} profileAvailable={!!profile} />
 
         <div className="py-2 text-center">
           <Heart aria-hidden="true" size={16} className="mx-auto fill-[#C77F89] text-[#C77F89]" />
@@ -137,14 +130,12 @@ export default function UsPage() {
         </div>
       </div>
 
-      {editingProfile && (
+      {editingProfile && profile && (
         <CoupleProfileForm
           profile={profile}
           onClose={() => setEditingProfile(false)}
-          onSave={(next) => {
-            updateProfile(next);
-            setEditingProfile(false);
-          }}
+          onSave={updateProfile}
+          saveError={profileError}
         />
       )}
     </>
